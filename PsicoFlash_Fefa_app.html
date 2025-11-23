@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>PsicoFlash Fefa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <!-- Deixa em modo "app" quando adiciona à tela inicial -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PsicoFlash Fefa" />
+  <style>
+    :root {
+      --bg: #f4eee8;
+      --card-bg: #fffaf5;
+      --accent: #6e4a32;
+      --accent-soft: #b38964;
+      --text: #2b211a;
+      --muted: #7c6a5c;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7f1 0, var(--bg) 55%, #e8ddd2 100%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 640px;
+      background: rgba(255,255,255,0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 18px 16px 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(110,74,50,0.08);
+      color: var(--accent);
+      margin-top: 6px;
+    }
+
+    .brain-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid var(--accent-soft);
+      position: relative;
+    }
+    .brain-dot::after {
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .select-group {
+      flex: 1 1 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    select {
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid #dac8b6;
+      background: #fffaf5;
+      font-size: 0.85rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent-soft);
+    }
+
+    .deck-info {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: right;
+      flex: 1 1 120px;
+    }
+
+    .deck-info strong {
+      color: var(--accent);
+    }
+
+    .card-shell {
+      perspective: 1100px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      position: relative;
+      border-radius: var(--radius-md);
+      background: radial-gradient(circle at top left, #fffdf8 0, var(--card-bg) 60%);
+      border: 1px solid #ead7c7;
+      box-shadow: var(--shadow-sm);
+      padding: 16px 14px;
+      min-height: 160px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.10);
+    }
+
+    .side-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--accent-soft);
+      margin-bottom: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .side-pill {
+      width: 40px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-soft), rgba(179,137,100,0.1));
+    }
+
+    .term {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1.02rem;
+    }
+
+    .text {
+      font-size: 0.9rem;
+      line-height: 1.4;
+      color: #4b3b30;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .bar strong {
+      color: var(--accent);
+    }
+
+    .bar-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(110,74,50,0.06);
+      font-size: 0.74rem;
+      color: var(--accent);
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent);
+      color: #fdf7f1;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+
+    button.secondary {
+      background: rgba(110,74,50,0.09);
+      color: var(--accent);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+      transform: none;
+    }
+
+    .footer {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer strong {
+      color: var(--accent);
+    }
+
+    @media (max-width: 480px) {
+      .app {
+        padding: 14px 12px 12px;
+      }
+      header h1 {
+        font-size: 1.25rem;
+      }
+      .card {
+        padding: 14px 12px;
+        min-height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>PsicoFlash Fefa</h1>
+      <p>Flashcards de Psicologia para seus estudos 💛</p>
+      <div class="badge">
+        <div class="brain-dot"></div>
+        <span>Modo cérebro ativado</span>
+      </div>
+    </header>
+
+    <div class="controls-row">
+      <div class="select-group">
+        <label for="deck-select">Escolha o conjunto de estudo:</label>
+        <select id="deck-select">
+          <option value="neuro_atividades">Neuropsicologia – 10 atividades</option>
+          <option value="percepcao">Percepção, sensação e memória</option>
+          <option value="funcoes_cognitivas">Funções cognitivas</option>
+          <option value="abordagens">Abordagens em Psicologia</option>
+          <option value="prova_mix">Mix para prova (geral)</option>
+        </select>
+      </div>
+      <div class="deck-info">
+        <div id="deck-name"><strong>Neuropsicologia – 10 atividades</strong></div>
+        <div id="card-counter">Card 1 de 1</div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div>Toque no card para virar ✨</div>
+      <div class="bar-right">
+        <span class="pill" id="side-pill">Frente</span>
+      </div>
+    </div>
+
+    <div class="card-shell">
+      <div class="card" id="card">
+        <div class="side-label">
+          <span id="side-label-text">Frente</span>
+          <div class="side-pill"></div>
+        </div>
+        <div class="term" id="term"></div>
+        <div class="text" id="text"></div>
+        <div class="hint" id="hint"></div>
+      </div>
+    </div>
+
+    <div class="buttons-row">
+      <button id="prev-btn" class="secondary">◀ Anterior</button>
+      <button id="flip-btn" class="secondary">↻ Virar</button>
+      <button id="next-btn">Próximo ▶</button>
+      <button id="shuffle-btn">🔀 Embaralhar deck</button>
+    </div>
+
+    <div class="footer">
+      Feito com carinho para <strong>Fernanda (Fefa)</strong> revisar Psicologia onde estiver. 📚🧠
+    </div>
+  </div>
+
+  <script>
+    const decks = {
+      neuro_atividades: {
+        nome: "Neuropsicologia – 10 atividades",
+        cards: [
+          {
+            frente: "Avaliação neuropsicológica completa",
+            verso: "Processo sistemático de investigação do funcionamento cognitivo, emocional e comportamental, por meio de entrevistas, testes e observação clínica. Objetivo: compreender como o cérebro está impactando o dia a dia da pessoa."
+          },
+          {
+            frente: "Aplicação de testes padronizados",
+            verso: "Uso de instrumentos como WAIS, WISC, Stroop, Figura de Rey, Wisconsin etc. Permite mensurar atenção, memória, linguagem, funções executivas e outras habilidades, comparando o desempenho com normas populacionais."
+          },
+          {
+            frente: "Devolutiva para paciente e família",
+            verso: "Momento em que o neuropsicólogo traduz os resultados em linguagem acessível, explicando dificuldades, potencialidades e orientações práticas para tratamento, rotina e tomada de decisão."
+          },
+          {
+            frente: "Reabilitação cognitiva",
+            verso: "Plano de intervenção focado em treinar, compensar ou adaptar funções cognitivas prejudicadas (memória, atenção, planejamento etc.), por meio de exercícios estruturados, estratégias externas e treino de habilidades."
+          },
+          {
+            frente: "Acompanhamento de pacientes neurológicos",
+            verso: "Atuação com pessoas que sofreram AVC, TCE, tumores cerebrais, epilepsia, demências, Parkinson etc., monitorando a evolução do quadro e ajustando as intervenções cognitivas e emocionais."
+          },
+          {
+            frente: "Interconsulta e trabalho em equipe",
+            verso: "Participação em equipes multiprofissionais com neurologia, psiquiatria, fonoaudiologia, terapia ocupacional, fisioterapia, psicopedagogia e escola, integrando informações para um plano de cuidado mais completo."
+          },
+          {
+            frente: "Laudos e pareceres neuropsicológicos",
+            verso: "Documentos técnicos que descrevem procedimentos, resultados, hipóteses diagnósticas e recomendações. São usados por médicos, escolas, serviços de reabilitação e até pela justiça, quando necessário."
+          },
+          {
+            frente: "Investigação de diagnóstico diferencial",
+            verso: "Ajuda a diferenciar quadros semelhantes na clínica, como: TDAH x ansiedade, demência x depressão, dificuldades de aprendizagem x deficiência intelectual, ou alterações cognitivas x desmotivação."
+          },
+          {
+            frente: "Orientação à escola e adaptações acadêmicas",
+            verso: "Fornece recomendações para professores sobre manejo de atenção, organização da sala, adaptação de provas e atividades, uso de recursos visuais, divisão de tarefas em etapas etc."
+          },
+          {
+            frente: "Educação em saúde e psicoeducação",
+            verso: "Explica ao paciente e à família sobre funcionamento cerebral, plasticidade, sono, relação entre emoções e cognição, fatores de risco e proteção, estimulando adesão ao tratamento e autocuidado."
+          }
+        ]
+      },
+
+      percepcao: {
+        nome: "Percepção, sensação e memória",
+        cards: [
+          {
+            frente: "Sensação x percepção",
+            verso: "Sensação: captação de estímulos pelos órgãos sensoriais (visão, audição etc.). Percepção: organização e interpretação desses estímulos pelo cérebro, dando significado ao que é sentido."
+          },
+          {
+            frente: "Percepção como processo ativo",
+            verso: "A percepção não é cópia fiel da realidade. O sujeito seleciona, organiza e interpreta estímulos com base em experiências, expectativas, cultura, contexto e estado emocional."
+          },
+          {
+            frente: "Papel da atenção na percepção",
+            verso: "Atenção funciona como um filtro. O que é focalizado é mais facilmente percebido e lembrado. Distratores, fadiga e sobrecarga de estímulos podem prejudicar a percepção correta."
+          },
+          {
+            frente: "Percepção e memória",
+            verso: "Percepção e memória se influenciam mutuamente: aquilo que já vivemos (memória) influencia como percebemos situações novas, e o que percebemos é o material que será armazenado na memória."
+          },
+          {
+            frente: "Gestalt e princípios perceptivos",
+            verso: "Para a Gestalt, percebemos o todo antes das partes. Princípios como figura-fundo, proximidade, semelhança e fechamento mostram como o cérebro organiza os estímulos em padrões significativos."
+          },
+          {
+            frente: "Ilusões perceptivas",
+            verso: "São distorções da percepção em relação ao estímulo real. Mostram que o cérebro faz inferências e pode 'errar' ao interpretar informações sensoriais, principalmente em condições ambíguas."
+          },
+          {
+            frente: "Percepção social",
+            verso: "É a forma como percebemos pessoas e relações sociais. Sofre influência de estereótipos, crenças, emoções e contexto, podendo gerar vieses e julgamentos precipitados."
+          },
+          {
+            frente: "Percepção e contexto cultural",
+            verso: "A cultura orienta o que é percebido como relevante, perigoso, bonito, ameaçador etc. Isso significa que a mesma situação pode ser percebida de modos diferentes em culturas distintas."
+          },
+          {
+            frente: "Percepção do próprio corpo (esquema corporal)",
+            verso: "Envolve a consciência e a representação mental do próprio corpo no espaço. Alterações neurológicas e psicológicas podem gerar distorções, como na anorexia, em membros fantasmas e em algumas síndromes neurológicas."
+          },
+          {
+            frente: "Percepção do tempo",
+            verso: "Nossa experiência do tempo pode acelerar ou desacelerar conforme emoção, atenção e contexto (ex.: minutos parecem horas em situações de ansiedade). Depende da integração de múltiplas funções cognitivas."
+          }
+        ]
+      },
+
+      funcoes_cognitivas: {
+        nome: "Funções cognitivas",
+        cards: [
+          {
+            frente: "Atenção",
+            verso: "Capacidade de selecionar estímulos relevantes e manter o foco. Subtipos: atenção seletiva, sustentada, alternada e dividida. Fundamental para a aprendizagem e o desempenho em tarefas complexas."
+          },
+          {
+            frente: "Memória",
+            verso: "Processo de codificar, armazenar e recuperar informações. Inclui memória de curto prazo, de longo prazo, episódica, semântica, procedural, de trabalho, entre outras."
+          },
+          {
+            frente: "Funções executivas",
+            verso: "Conjunto de habilidades responsáveis por planejar, iniciar, monitorar e ajustar comportamentos. Inclui flexibilidade cognitiva, inibição de respostas, tomada de decisão e monitoramento."
+          },
+          {
+            frente: "Linguagem",
+            verso: "Habilidade de compreender e produzir sinais verbais e escritos. Envolve vocabulário, sintaxe, pragmática, fluência e compreensão, dependendo de redes neurais distribuídas."
+          },
+          {
+            frente: "Praxias",
+            verso: "Capacidade de executar gestos e movimentos intencionais aprendidos (ex.: usar ferramentas, vestir-se). Apraxias podem ocorrer após lesões cerebrais, mesmo com força e sensibilidade preservadas."
+          },
+          {
+            frente: "Gnosias",
+            verso: "Capacidade de reconhecer objetos, pessoas, sons e estímulos do ambiente. Agnosias são dificuldades de reconhecimento, apesar da sensibilidade estar preservada (ex.: não reconhecer rostos conhecidos)."
+          },
+          {
+            frente: "Velocidade de processamento",
+            verso: "Rapidez com que o cérebro recebe, interpreta e responde aos estímulos. Redução da velocidade pode impactar desempenho acadêmico e atividades do cotidiano."
+          },
+          {
+            frente: "Raciocínio lógico e abstrato",
+            verso: "Capacidade de estabelecer relações, inferir regras, resolver problemas e lidar com conceitos não concretos. Avaliado em muitos testes de inteligência e provas escolares."
+          },
+          {
+            frente: "Metacognição",
+            verso: "Capacidade de pensar sobre o próprio pensamento: saber o que se sabe, reconhecer dúvidas, avaliar desempenho e escolher estratégias para aprender melhor."
+          },
+          {
+            frente: "Regulação emocional e cognição",
+            verso: "Emoções influenciam a atenção, a memória e o julgamento. Regular estados emocionais é essencial para manter um bom funcionamento cognitivo."
+          }
+        ]
+      },
+
+      abordagens: {
+        nome: "Abordagens em Psicologia (resumão)",
+        cards: [
+          {
+            frente: "Behaviorismo / Análise do Comportamento",
+            verso: "Foco nas relações entre ambiente, comportamento e consequências. Compreende o comportamento como aprendido por condicionamento, reforço e punição. Intervenções usam análise funcional e manejo de contingências."
+          },
+          {
+            frente: "Psicanálise (Freud e pós-freudianos)",
+            verso: "Destaca o inconsciente, conflitos psíquicos, desejos reprimidos, mecanismos de defesa e a importância da infância. Usa livre associação, interpretação de sonhos e da transferência."
+          },
+          {
+            frente: "Fenomenologia-existencial",
+            verso: "Ênfase na experiência vivida, na liberdade, responsabilidade e sentido da existência. O terapeuta busca compreender o mundo do cliente 'a partir de dentro', sem reduzir a explicações causais."
+          },
+          {
+            frente: "Abordagem Centrada na Pessoa (ACP)",
+            verso: "Carl Rogers. Baseada em três atitudes básicas: empatia, consideração positiva incondicional e congruência. Acredita na tendência atualizante do indivíduo quando encontra um ambiente facilitador."
+          },
+          {
+            frente: "Gestalt-terapia",
+            verso: "Foca no aqui-e-agora, na tomada de consciência (awareness) e na forma como a pessoa se ajusta ao ambiente. Trabalha com polaridades, interrupções de contato e experimentos na sessão."
+          },
+          {
+            frente: "Abordagem sistêmica",
+            verso: "Entende o indivíduo dentro de redes de relações (família, casal, grupos). Problemas não são vistos apenas na pessoa, mas na forma como o sistema se organiza e se comunica."
+          },
+          {
+            frente: "Logoterapia",
+            verso: "Viktor Frankl. Ênfase na busca de sentido como força motivadora central. Trabalha com liberdade interior, responsabilidade e capacidade de encontrar sentido mesmo em situações de sofrimento."
+          },
+          {
+            frente: "Terapias cognitivo-comportamentais (TCC)",
+            verso: "Relação entre pensamentos, emoções e comportamentos. Identifica distorções cognitivas e crenças centrais, trabalhando com reestruturação cognitiva e exposição planejada."
+          },
+          {
+            frente: "Humanismo em Psicologia",
+            verso: "Enfatiza potencial humano, autonomia, autenticidade, crescimento pessoal e experiências subjetivas. Vê o ser humano como ativo na construção de si."
+          },
+          {
+            frente: "Integração de abordagens",
+            verso: "Muitos profissionais hoje trabalham de forma integrativa, articulando conceitos e técnicas de diferentes abordagens, desde que de modo coerente e fundamentado."
+          }
+        ]
+      },
+
+      prova_mix: {
+        nome: "Mix para prova (geral)",
+        cards: [
+          {
+            frente: "Diferença entre sensação e percepção",
+            verso: "Sensação é o registro bruto do estímulo pelos órgãos sensoriais; percepção é a interpretação e organização desse estímulo pelo cérebro, dando significado."
+          },
+          {
+            frente: "Funções executivas",
+            verso: "Processos responsáveis por planejar, iniciar, monitorar, inibir e ajustar comportamentos, essenciais para autonomia e resolução de problemas."
+          },
+          {
+            frente: "Papel da atenção na aprendizagem",
+            verso: "Sem atenção não há boa codificação de informações. Atenção seletiva e sustentada são fundamentais para estudar, assistir aula e realizar provas."
+          },
+          {
+            frente: "Gestalt-terapia e 'aqui-e-agora'",
+            verso: "A ênfase está na experiência presente do cliente. O passado aparece na forma como a pessoa sente e age hoje, e não apenas como história distante."
+          },
+          {
+            frente: "Behaviorismo e reforçamento",
+            verso: "Um comportamento tende a se repetir quando é seguido de consequências reforçadoras (aumento da probabilidade de ocorrência no futuro)."
+          },
+          {
+            frente: "Memória de trabalho",
+            verso: "Sistema que mantém e manipula informações temporariamente para realização de tarefas complexas (resolver problemas, compreender textos etc.)."
+          },
+          {
+            frente: "Psicanálise: inconsciente",
+            verso: "Conjunto de conteúdos psíquicos não acessíveis diretamente à consciência, mas que influenciam sonhos, atos falhos, sintomas e escolhas."
+          },
+          {
+            frente: "TCC: tríade cognitiva",
+            verso: "Padrão típico em depressão: visão negativa de si, do mundo e do futuro. A intervenção visa questionar e flexibilizar esses pensamentos."
+          },
+          {
+            frente: "Metacognição no estudo",
+            verso: "Saber como você aprende melhor, monitorar se está entendendo o conteúdo e ajustar a estratégia de estudo são exemplos de metacognição."
+          },
+          {
+            frente: "Psicoeducação",
+            verso: "Parte do tratamento em que o profissional explica diagnósticos, sintomas, funcionamento do cérebro, estratégias de manejo e cuidados, fortalecendo o paciente."
+          }
+        ]
+      }
+    };
+
+    let currentDeckKey = "neuro_atividades";
+    let currentIndex = 0;
+    let showingFront = true;
+
+    const deckSelect = document.getElementById("deck-select");
+    const deckName = document.getElementById("deck-name");
+    const cardCounter = document.getElementById("card-counter");
+    const sideLabelText = document.getElementById("side-label-text");
+    const sidePill = document.getElementById("side-pill");
+    const termEl = document.getElementById("term");
+    const textEl = document.getElementById("text");
+    const hintEl = document.getElementById("hint");
+    const cardEl = document.getElementById("card");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const flipBtn = document.getElementById("flip-btn");
+    const shuffleBtn = document.getElementById("shuffle-btn");
+
+    function getCurrentDeck() {
+      return decks[currentDeckKey];
+    }
+
+    function updateCard() {
+      const deck = getCurrentDeck();
+      const card = deck.cards[currentIndex];
+
+      deckName.textContent = deck.nome;
+      cardCounter.textContent = `Card ${currentIndex + 1} de ${deck.cards.length}`;
+
+      sideLabelText.textContent = showingFront ? "Frente" : "Verso";
+      sidePill.textContent = showingFront ? "Frente" : "Verso";
+
+      termEl.textContent = card.frente || "";
+      textEl.textContent = showingFront
+        ? "Toque para ver a explicação."
+        : (card.verso || "");
+
+      hintEl.textContent = showingFront
+        ? "Dica: tente lembrar a definição antes de virar."
+        : "Leia com calma e veja se você diria com suas próprias palavras.";
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === deck.cards.length - 1;
+    }
+
+    function flipCard() {
+      showingFront = !showingFront;
+      updateCard();
+    }
+
+    function nextCard() {
+      const deck = getCurrentDeck();
+      if (currentIndex < deck.cards.length - 1) {
+        currentIndex++;
+        showingFront = true;
+        updateCard();
+      }
+    }
+
+    function prevCard() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showingFront = true;
+        updateCard();
+      }
+    }
+
+    function shuffleDeck() {
+      const deck = getCurrentDeck();
+      for (let i = deck.cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck.cards[i], deck.cards[j]] = [deck.cards[j], deck.cards[i]];
+      }
+      currentIndex = 0;
+      showingFront = true;
+      updateCard();
+    }
+
+    deckSelect.addEventListener("change", (e) => {
+      currentDeckKey = e.target.value;
+      currentIndex = 0;
+      showingFront = true;
+      updateCard();
+    });
+
+    cardEl.addEventListener("click", flipCard);
+    flipBtn.addEventListener("click", flipCard);
+    nextBtn.addEventListener("click", nextCard);
+    prevBtn.addEventListener("click", prevCard);
+    shuffleBtn.addEventListener("click", shuffleDeck);
+
+    updateCard();
+  </script>
+</body>
+</html>
